@@ -5,6 +5,7 @@ import json
 import os.path
 import argparse
 import i3ipc
+import re
 from fa_icons import icons
 
 I3_CONFIG_PATHS = tuple(os.path.expanduser(path) for path in ("~/.i3", "~/.config/i3", "~/.config/i3-regolith"))
@@ -12,13 +13,15 @@ I3_CONFIG_PATHS = tuple(os.path.expanduser(path) for path in ("~/.i3", "~/.confi
 DEFAULT_APP_ICON_CONFIG = {
     "chromium-browser": "chrome",
     "firefox": "firefox",
-    "x-terminal-emulator": "terminal",
+    "gnome-terminal": "terminal",
     "thunderbird": "envelope",
-    "jetbrains-idea-ce": "edit",
+    "emacs": "code",
     "nautilus": "folder-open",
-    "clementine": "music",
-    "vlc": "play",
-    "signal": "comment"
+    "rhythmbox": "music",
+    "mpv": "play",
+    "signal": "comment",
+    "skype": "comment",
+    "keepassx": "key",
 }
 
 
@@ -47,6 +50,10 @@ def build_rename(i3, app_icons, delim, length, uniq):
             # no identifiable info. about this window
             return '?'
         name = name.lower()
+
+        if name == 'emacs' and leaf.window_title[0] == '[':
+            project_name = re.search(r'^\[(.+)\]', leaf.window_title).group(1)
+            return '{} {}'.format(icons[app_icons['emacs']], project_name)
 
         if name in app_icons and app_icons[name] in icons:
             return icons[app_icons[name]]
