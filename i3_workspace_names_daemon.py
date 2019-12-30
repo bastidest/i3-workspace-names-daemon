@@ -55,10 +55,14 @@ def build_rename(i3, app_icons, delim, length, uniq):
             project_name = re.search(r'^\[(.+)\]', leaf.window_title).group(1)
             return '{} {}'.format(icons[app_icons['emacs']], project_name)
 
+        if name == 'gnome-terminal' and leaf.window_title[:4] == 'ssh ':
+            server_name = leaf.window_title.split()[1]
+            return '{} {}'.format(icons['link'], server_name)
+
         if name in app_icons and app_icons[name] in icons:
             return icons[app_icons[name]]
         else:
-            return name[:length]
+            return ''
 
     def rename(i3, e):
         workspaces = i3.get_tree().workspaces()
@@ -71,8 +75,8 @@ def build_rename(i3, app_icons, delim, length, uniq):
 
         commands = []
         for workspace in workspaces:
-            names = [get_icon_or_name(leaf, length)
-                     for leaf in workspace.leaves()]
+            names = filter(len, [get_icon_or_name(leaf, length)
+                     for leaf in workspace.leaves()])
             if uniq:
                 seen = set()
                 names = [x for x in names if x not in seen and not seen.add(x)]
